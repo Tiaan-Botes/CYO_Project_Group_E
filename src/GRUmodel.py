@@ -2,71 +2,55 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
 import plotly.express as px
-import yfinance as yf
-import pandas_datareader as pdr
-from datetime import datetime, timedelta, date
-from xgboost import XGBRegressor
-from arch import arch_model
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from statsmodels.tsa.ar_model import AutoReg
-from statsmodels.tsa.arima_model import ARIMA
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
-from sklearn.pipeline import make_pipeline
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import GRU, Dense
-import warnings
-
-warnings.simplefilter(action="ignore", category=Warning)
-
-symbol = 'AAPL'
-
-start_date='2010/01/01'
-end_date='2021/01/01'
-
-stock_price = yf.download(symbol, start=start_date, end=end_date)
-stock_price.head()
-
-today = date.today()
-start_date = today - timedelta(days=365) 
+from sklearn.metrics import mean_squared_error
 
 # Function to prepare stock price data
-def prepare_data(symbol):
-    today = date.today()
-    start_date = today - timedelta(days=365*5) 
-    end_date = today
+def prepare_data():
+    url = 'https://raw.githubusercontent.com/Tiaan-Botes/CYO_Project_Group_E/52663ba4e6833e232f1bbd7a0ab48edb23f52b91/data/data.csv'
+    data = pd.read_csv(url)
 
-    data = yf.download(symbol, start=start_date, end=end_date)
-    data = data[['Adj Close']]
-    data = data.rename(columns={'Adj Close': 'price'})
-    
+    # Convert 'Date' column to datetime
+    data['Date'] = pd.to_datetime(data['Date'])
+
+    # Sort data by date
+    data.sort_values('Date', inplace=True)
+
+    # Set 'Date' column as index
+    data.set_index('Date', inplace=True)
+
+    # Drop unnecessary columns
+    data.drop(columns=['Unnamed: 0', 'Year', 'Month', 'Day', 'Weekday'], inplace=True)
+
     # Calculating 20-day and 50-day moving averages
-    data['ma_20'] = data['price'].rolling(window=20).mean()
-    data['ma_50'] = data['price'].rolling(window=50).mean()
+    data['ma_20'] = data['Adj Close'].rolling(window=20).mean()
+    data['ma_50'] = data['Adj Close'].rolling(window=50).mean()
     
     # Calculating daily returns
-    data['daily_returns'] = data['price'].pct_change()*100
+    data['daily_returns'] = data['Adj Close'].pct_change()*100
     data.dropna(inplace=True)
 
     return data
 
-df = prepare_data(symbol)
+df = prepare_data()
 df.info()
-df.head()
+print(df.head())
+
 plot_data = df.loc['2023-01-01':'2023-12-31']
 
 # Plotting stock price along with moving averages
-plt.Figure(figsize=(20,25))
+plt.figure(figsize=(20, 25))
 fig = px.line(
     data_frame=plot_data, 
     x=plot_data.index, 
-    y=['price', 'ma_20', 'ma_50']
+    y=['Adj Close', 'ma_20', 'ma_50']
 )
 fig.show()
 
 # Plotting daily returns
-plt.Figure(figsize=(10,25))
+plt.figure(figsize=(10, 25))
 fig = px.line(
     data_frame=df, 
     x=df.index, 
@@ -75,9 +59,9 @@ fig = px.line(
 fig.show()
 
 # Function to prepare data for GRU model
-def prepare_gru_data(symbol):
-    data = prepare_data(symbol)  
-    dataset = data[['price']].values.astype('float32')
+def prepare_gru_data():
+    data = prepare_data()  
+    dataset = data[['Adj Close']].values.astype('float32')
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
 
@@ -124,7 +108,7 @@ def predict_gru_model(model, testX):
     return model.predict(testX)
 
 # Preparing data
-gru_dataset = prepare_gru_data(symbol)
+gru_dataset = prepare_gru_data()
 
 # Training 
 gru_model, testX, testY = train_gru_model(gru_dataset)
