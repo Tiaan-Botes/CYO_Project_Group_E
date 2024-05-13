@@ -8,13 +8,20 @@ from datetime import timedelta, date
 import sklearn.metrics as mt
 from sklearn.metrics import mean_absolute_error
 from arch import arch_model
+import os
 
 #Just to get a range for data, subject to change
 start_date = '2021-07-23'
 end_date = '2024-02-07'
 
 #Basic data to just get a basic database
-df = pd.read_csv('data\zomato.csv')
+parent_dir = os.path.dirname(os.getcwd())
+
+# Construct the path to the zomato.csv file inside the data directory
+file_path = os.path.join(parent_dir, "data", "zomato.csv")
+
+# Read the CSV file
+df = pd.read_csv(file_path)
 
 #Preparing data
 df = df[['Adj Close']]
