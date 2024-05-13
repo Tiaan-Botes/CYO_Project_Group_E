@@ -13,23 +13,14 @@ def prepare_data():
     url = 'https://raw.githubusercontent.com/Tiaan-Botes/CYO_Project_Group_E/52663ba4e6833e232f1bbd7a0ab48edb23f52b91/data/data.csv'
     data = pd.read_csv(url)
 
-    # Convert 'Date' column to datetime
     data['Date'] = pd.to_datetime(data['Date'])
-
-    # Sort data by date
     data.sort_values('Date', inplace=True)
-
-    # Set 'Date' column as index
     data.set_index('Date', inplace=True)
-
-    # Drop unnecessary columns
     data.drop(columns=['Unnamed: 0', 'Year', 'Month', 'Day', 'Weekday'], inplace=True)
 
-    #moving averages
     data['ma_30'] = data['Adj Close'].rolling(window=30).mean()
     data['ma_90'] = data['Adj Close'].rolling(window=90).mean()
     
-    # daily returns
     data['daily_returns'] = data['Adj Close'].pct_change()*100
     data.dropna(inplace=True)
 
