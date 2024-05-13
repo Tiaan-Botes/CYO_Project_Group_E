@@ -10,21 +10,21 @@ from sklearn.metrics import mean_absolute_error
 from arch import arch_model
 
 #Just to get a range for data, subject to change
-start_date = date.today() - timedelta(days=365*9)
-end_date = date.today() + timedelta(days=365*1)
+start_date = '2021-07-23'
+end_date = '2024-02-07'
 
 #Basic data to just get a basic database
-df = yf.download('AAPL', start=start_date, end=end_date)
+df = pd.read_csv('data\zomato.csv')
 
 #Preparing data
 df = df[['Adj Close']]
 df['ma_30'] = df['Adj Close'].rolling(window=30).mean()
-df['ma_90'] = df['Adj Close'].rolling(window=60).mean()
+df['ma_90'] = df['Adj Close'].rolling(window=90).mean()
 df['daily returns'] = df['Adj Close'].pct_change()*100
 
 #Building Model
 df2 = df[['daily returns']]
-cutoff = date.today() - timedelta(days=365*4)
+cutoff = '2023-02-07'
 y_train = df2.loc[:cutoff, :]
 y_test = df2.loc[cutoff:, :]
 
@@ -37,10 +37,10 @@ y_pred_baseline = [y_train_mean] * len(y_train)
 
 model = arch_model(y_train, p=1, q=0, rescale=False).fit()
 
-print(model.forecast(horizon=30, reindex=False).mean)
+print(model.forecast(horizon=1, reindex=False).mean)
 
 #Plotting data
-plot_data = df.loc[start_date:end_date]
+""" plot_data = df.loc[start_date:end_date]
 fig = px.line(
     data_frame=plot_data,
     x=plot_data.index,
@@ -53,4 +53,4 @@ fig2 = px.line(
     x=df.index, 
     y=['daily returns']
 )
-fig2.show()
+fig2.show() """
