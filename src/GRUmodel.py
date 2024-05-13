@@ -7,8 +7,9 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import GRU, Dense
 from sklearn.metrics import mean_squared_error
 
-# Function to prepare stock price data
+# Function to prep csv file
 def prepare_data():
+    # Read stock price data
     url = 'https://raw.githubusercontent.com/Tiaan-Botes/CYO_Project_Group_E/52663ba4e6833e232f1bbd7a0ab48edb23f52b91/data/data.csv'
     data = pd.read_csv(url)
 
@@ -24,11 +25,11 @@ def prepare_data():
     # Drop unnecessary columns
     data.drop(columns=['Unnamed: 0', 'Year', 'Month', 'Day', 'Weekday'], inplace=True)
 
-    # Calculating 20-day and 50-day moving averages
-    data['ma_20'] = data['Adj Close'].rolling(window=20).mean()
-    data['ma_50'] = data['Adj Close'].rolling(window=50).mean()
+    #moving averages
+    data['ma_30'] = data['Adj Close'].rolling(window=30).mean()
+    data['ma_90'] = data['Adj Close'].rolling(window=90).mean()
     
-    # Calculating daily returns
+    # daily returns
     data['daily_returns'] = data['Adj Close'].pct_change()*100
     data.dropna(inplace=True)
 
@@ -45,7 +46,7 @@ plt.figure(figsize=(20, 25))
 fig = px.line(
     data_frame=plot_data, 
     x=plot_data.index, 
-    y=['Adj Close', 'ma_20', 'ma_50']
+    y=['Adj Close', 'ma_30', 'ma_90']
 )
 fig.show()
 
