@@ -12,26 +12,30 @@ import os
 
 #Just to get a range for data, subject to change
 start_date = '2021-07-23'
-end_date = '2024-02-07'
+end_date = '2025-02-07'
 
 #Basic data to just get a basic database
 parent_dir = os.path.dirname(os.getcwd())
 
 # Construct the path to the zomato.csv file inside the data directory
-file_path = os.path.join(parent_dir, "data", "zomato.csv")
+file_path = os.path.join(parent_dir, "data", "data.csv")
 
 # Read the CSV file
-df = pd.read_csv(file_path)
+df = pd.read_csv('data/data.csv')
 
 #Preparing data
-df = df[['Adj Close']]
+df['Date'] = pd.to_datetime(df['Date'])
+df.sort_values('Date', inplace=True)
+df.set_index('Date', inplace=True)
+
+df.drop(columns=['Unnamed: 0', 'Year', 'Month', 'Day', 'Weekday'], inplace=True)
 df['ma_30'] = df['Adj Close'].rolling(window=30).mean()
 df['ma_90'] = df['Adj Close'].rolling(window=90).mean()
 df['daily returns'] = df['Adj Close'].pct_change()*100
 
 #Building Model
 df2 = df[['daily returns']]
-cutoff = '2023-02-07'
+cutoff = end_date
 y_train = df2.loc[:cutoff, :]
 y_test = df2.loc[cutoff:, :]
 
@@ -44,10 +48,10 @@ y_pred_baseline = [y_train_mean] * len(y_train)
 
 model = arch_model(y_train, p=1, q=0, rescale=False).fit()
 
-print(model.forecast(horizon=1, reindex=False).mean)
+print(model.forecast(horizon=3, reindex=False)._mean)
 
 #Plotting data
-""" plot_data = df.loc[start_date:end_date]
+plot_data = df.loc[start_date:end_date]
 fig = px.line(
     data_frame=plot_data,
     x=plot_data.index,
@@ -60,4 +64,4 @@ fig2 = px.line(
     x=df.index, 
     y=['daily returns']
 )
-fig2.show() """
+fig2.show()
