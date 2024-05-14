@@ -141,8 +141,6 @@ def calculate_growth():
 
     return day_growth, month_growth, year_growth
 
-
-
 def sudden_drop():
     # Read the data from data.csv
     data = pd.read_csv('data.csv')
@@ -156,7 +154,30 @@ def sudden_drop():
         return f"Alert: Zomato has dropped more than 20% from the previous day!"
     else:
         return "Stock still normal"
+    
+def predict_stock_price(model, dataset, time):
+    last_observation = dataset[-1]
+    look_back = 1
+    last_observation = np.reshape(last_observation, (1, 1, look_back))
 
+    predicted_prices = []
+    best_return = 0
+    best_day = 0
+
+    for i in range(time):
+        next_price = model.predict(last_observation)[0][0]
+        predicted_prices.append(next_price)
+        last_observation = np.array([[[next_price]]])
+        if last_observation > best_return:
+            best_return = last_observation
+            best_day = i+1
+        
+    return predicted_prices, best_return, best_day
+
+time = 7
+predicted_price, best_return, best_day = predict_stock_price(gru_model, gru_dataset, time)
+print(f"Predicted returns in {time} days: {predicted_price}")
+print(f"The highest predicted return is on day {best_day} : with a return off {best_return}%")
 
 # Plotting actual vs. predicted values
 plt.plot(testY, label='Actual')
