@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
 import plotly.express as px
+import plotly.graph_objs as go
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import GRU, Dense
@@ -31,26 +32,39 @@ df = prepare_data()
 df.info()
 #print(df.head())
 
-current_date = date.today().strftime('%Y-%m-%d')
-plot_data = df.loc['2023-01-01':current_date]
+# Function to prepare data for the plots
+def prepare_plot_data(df):
+    current_date = date.today().strftime('%Y-%m-%d')
+    plot_data = df.loc['2023-01-01':current_date]
+    return plot_data
 
-# Plotting stock price along with moving averages
-plt.figure(figsize=(20, 25))
-fig = px.line(
-    data_frame=plot_data, 
-    x=plot_data.index, 
-    y=['Adj Close', 'ma_30', 'ma_90']
-)
-#fig.show()
+# Function to create the plot for stock price along with moving averages
+def stock_price_plot(plot_data):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=plot_data.index, y=plot_data['Adj Close'], mode='lines', name='Adj Close'))
+    fig.update_layout(title='Stock Price',
+                      xaxis_title='Time',
+                      yaxis_title='Value',
+                      margin={'l': 40, 'b': 40, 't': 40, 'r': 40},
+                      legend={'x': 0, 'y': 1},
+                      plot_bgcolor='#ffffff',
+                      paper_bgcolor='#ffffff',
+                      width=1200, height=800)
+    return fig
 
-# Plotting daily returns
-plt.figure(figsize=(10, 25))
-fig = px.line(
-    data_frame=df, 
-    x=df.index, 
-    y=['daily_returns']
-)
-#fig.show()
+# Function to create the plot for daily returns
+def daily_returns_plot(df):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df.index, y=df['daily_returns'], mode='lines', name='Daily Returns'))
+    fig.update_layout(title='Daily Returns',
+                      xaxis_title='Time',
+                      yaxis_title='Returns (%)',
+                      margin={'l': 40, 'b': 40, 't': 40, 'r': 40},
+                      legend={'x': 0, 'y': 1},
+                      plot_bgcolor='#ffffff',
+                      paper_bgcolor='#ffffff',
+                      width=1200, height=800)
+    return fig
 
 # Function to prepare data for GRU model
 def prepare_gru_data():

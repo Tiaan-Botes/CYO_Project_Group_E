@@ -3,6 +3,7 @@ import plotly.graph_objs as go
 import numpy as np
 from dash import dcc, html
 import pandas as pd
+from GRUmodel import prepare_plot_data, stock_price_plot, daily_returns_plot, prepare_data
 
 # Generate some example data
 x = np.linspace(0, 10, 100)
@@ -11,10 +12,12 @@ y = np.sin(x)
 data_url = 'https://raw.githubusercontent.com/Tiaan-Botes/CYO_Project_Group_E/52663ba4e6833e232f1bbd7a0ab48edb23f52b91/data/data.csv'
 df = pd.read_csv(data_url)
 
-df.drop(columns=['Unnamed: 0'], inplace=True)
-df = df.round(2)
-
+df = prepare_data()
 head_data = df.head()
+
+data = prepare_plot_data(df)
+stock_price= stock_price_plot(data)
+daily_returns = daily_returns_plot(data)
 
 app = dash.Dash(__name__)
 
@@ -36,6 +39,8 @@ app.layout = html.Div(style={'backgroundColor': '#537d90', 'padding': '2rem', 'b
                                   ])
                               ], style={'margin': '0 auto', 'color': 'white'})
                           ]),
+                          dcc.Graph(id='stock-price-plot', figure=stock_price),
+                          dcc.Graph(id='daily-returns-plot', figure=daily_returns)
                       ])
 
 if __name__ == '__main__':
