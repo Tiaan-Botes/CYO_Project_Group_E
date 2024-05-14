@@ -9,6 +9,7 @@ from tensorflow.keras.layers import GRU, Dense
 from sklearn.metrics import mean_squared_error
 from datetime import date
 
+
 # Function to prep csv file
 def prepare_data():
     # Read stock price data
@@ -130,15 +131,17 @@ print(f'Root Mean Squared Error: {rmse}')
 
 #calculate growh of stock 
 def calculate_growth():
-    # Read the data from data.csv
-    data = pd.read_csv('data.csv')
-
+    url = 'https://raw.githubusercontent.com/Tiaan-Botes/CYO_Project_Group_E/52663ba4e6833e232f1bbd7a0ab48edb23f52b91/data/data.csv'
+    data = pd.read_csv(url)
+    
     # Calculate the growth based on the period
     day_growth = (data['Adj Close'].iloc[-1] - data['Adj Close'].iloc[-2]) / data['Adj Close'].iloc[-2] * 100
     month_growth = (data['Adj Close'].iloc[-1] - data['Adj Close'].iloc[-30]) / data['Adj Close'].iloc[-30] * 100
     year_growth = (data['Adj Close'].iloc[-1] - data['Adj Close'].iloc[-365]) / data['Adj Close'].iloc[-365] * 100
 
     return day_growth, month_growth, year_growth
+
+
 
 def sudden_drop():
     # Read the data from data.csv
