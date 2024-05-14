@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import GRU, Dense
 from sklearn.metrics import mean_squared_error
+from datetime import date
 
 # Function to prep csv file
 def prepare_data():
@@ -28,9 +29,10 @@ def prepare_data():
 
 df = prepare_data()
 df.info()
-print(df.head())
+#print(df.head())
 
-plot_data = df.loc['2023-01-01':'2024-05-10']
+current_date = date.today().strftime('%Y-%m-%d')
+plot_data = df.loc['2023-01-01':current_date]
 
 # Plotting stock price along with moving averages
 plt.figure(figsize=(20, 25))
@@ -39,7 +41,7 @@ fig = px.line(
     x=plot_data.index, 
     y=['Adj Close', 'ma_30', 'ma_90']
 )
-fig.show()
+#fig.show()
 
 # Plotting daily returns
 plt.figure(figsize=(10, 25))
@@ -48,7 +50,7 @@ fig = px.line(
     x=df.index, 
     y=['daily_returns']
 )
-fig.show()
+#fig.show()
 
 # Function to prepare data for GRU model
 def prepare_gru_data():
@@ -112,8 +114,35 @@ gru_predictions = predict_gru_model(gru_model, testX)
 rmse = np.sqrt(mean_squared_error(testY, gru_predictions))
 print(f'Root Mean Squared Error: {rmse}')
 
+#calculate growh of stock 
+def calculate_growth():
+    # Read the data from data.csv
+    data = pd.read_csv('data.csv')
+
+    # Calculate the growth based on the period
+    day_growth = (data['Adj Close'].iloc[-1] - data['Adj Close'].iloc[-2]) / data['Adj Close'].iloc[-2] * 100
+    month_growth = (data['Adj Close'].iloc[-1] - data['Adj Close'].iloc[-30]) / data['Adj Close'].iloc[-30] * 100
+    year_growth = (data['Adj Close'].iloc[-1] - data['Adj Close'].iloc[-365]) / data['Adj Close'].iloc[-365] * 100
+
+    return day_growth, month_growth, year_growth
+
+def sudden_drop():
+    # Read the data from data.csv
+    data = pd.read_csv('data.csv')
+
+    # Get the current and previous prices
+    current_price = data[data['Date'] == max(data['Date'])]['Adj Close'].values[0]
+    previous_price = data[data['Date'] == max(data['Date']) - pd.Timedelta(days=1)]['Adj Close'].values[0]
+
+    # Check if the stock has dropped more than 10%
+    if (previous_price - current_price) / previous_price > 0.2:
+        return f"Alert: Zomato has dropped more than 20% from the previous day!"
+    else:
+        return "Stock still normal"
+
+
 # Plotting actual vs. predicted values
 plt.plot(testY, label='Actual')
 plt.plot(gru_predictions, label='Predicted')
 plt.legend()
-plt.show()
+#plt.show()
