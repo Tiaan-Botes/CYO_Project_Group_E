@@ -154,27 +154,32 @@ def sudden_drop():
         return f"Alert: Zomato has dropped more than 20% from the previous day!"
     else:
         return "Stock still normal"
-    
-def predict_stock_price(model, dataset, time):
-    last_observation = dataset[-1]
-    look_back = 1
-    last_observation = np.reshape(last_observation, (1, 1, look_back))
 
+# Calulate the stock return in the given timeframe
+def predict_stock_price(model, dataset, time):
+    # Prepare data for gru model
+    last_observation = np.reshape(dataset[-1], (1, 1, 1))
+
+    # Create variables to hold the necessary data to return
     predicted_prices = []
     best_return = 0
     best_day = 0
 
+    # Loop for the amount of days given
     for i in range(time):
+        # Predict the stock price
         next_price = model.predict(last_observation)[0][0]
         predicted_prices.append(next_price)
         last_observation = np.array([[[next_price]]])
+        # Check if the last obervation is higher than the current best return
         if last_observation > best_return:
+            # Assign values to the best return and the day that return is predicted
             best_return = last_observation
             best_day = i+1
         
     return predicted_prices, best_return, best_day
 
-time = 7
+time = 10
 predicted_price, best_return, best_day = predict_stock_price(gru_model, gru_dataset, time)
 print(f"Predicted returns in {time} days: {predicted_price}")
 print(f"The highest predicted return is on day {best_day} : with a return off {best_return}%")
