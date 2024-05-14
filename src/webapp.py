@@ -50,14 +50,16 @@ children=[
     html.H3(children='Head of Data',
             style={'textAlign': 'center', 'color': 'white', 'fontSize': '1.5em', 'marginBottom': '20px'}),
     html.Div([
-        html.Table([
-            html.Thead(html.Tr([html.Th(col) for col in head_data.columns], style={'color': 'white', 'width': '200px'})),
-            html.Tbody([
-                html.Tr([
-                    html.Td(head_data.iloc[i][col]) for col in head_data.columns
-                ], style={'border': '1px solid white', 'color': 'white', 'width': '200px', 'font-size':'20px'}) for i in range(len(head_data))
-            ])
-        ], style={'margin': '0 auto', 'color': 'white', 'marginBottom': '20px'})
+        html.Div([
+            html.Table([
+                html.Thead(html.Tr([html.Th(col) for col in head_data.columns], style={'color': 'white', 'width': '200px'})),
+                html.Tbody([
+                    html.Tr([
+                        html.Td(head_data.iloc[i][col], style={'border': '1px solid white', 'color': 'white', 'padding': '8px', 'font-size': '1.2em'}) for col in head_data.columns
+                    ]) for i in range(len(head_data))
+                ])
+            ], style={'margin': '0 auto', 'color': 'white', 'marginBottom': '20px'})
+        ]),
     ]),
     html.H1("Growth Analysis", style={'textAlign': 'left', 'color': 'white', 'marginBottom': '20px'}),
     format_growth_table(),
