@@ -30,7 +30,7 @@ df = prepare_data()
 df.info()
 print(df.head())
 
-plot_data = df.loc['2023-01-01':'2023-12-31']
+plot_data = df.loc['2023-01-01':'2024-05-10']
 
 # Plotting stock price along with moving averages
 plt.figure(figsize=(20, 25))
