@@ -1,6 +1,6 @@
 import dash
 from dash import dcc, html
-from GRUmodel import prepare_plot_data, stock_price_plot, daily_returns_plot, prepare_data, sudden_drop, calculate_growth
+from GRUmodel import prepare_plot_data, stock_price_plot, daily_returns_plot, prepare_data, sudden_drop, calculate_growth, testY, gru_predictions
 
 app = dash.Dash(__name__)
 
@@ -44,28 +44,42 @@ def format_growth_table():
 
 # Define app layout
 app.layout = html.Div(style={'backgroundColor': '#537d90', 'padding': '2rem', 'border': '2rem solid white'},
-                      children=[
-                          html.H1(children='Stock Prediction Model',
-                                  style={'textAlign': 'center', 'color': 'white', 'textDecoration': 'underline', 'fontWeight': 'bold', 'fontSize': '2.5em', 'marginBottom': '20px'}),
-                          html.H3(children='Head of Data',
-                                  style={'textAlign': 'center', 'color': 'white', 'fontSize': '1.5em', 'marginBottom': '20px'}),
-                          html.Div([
-                              html.Table([
-                                  html.Thead(html.Tr([html.Th(col) for col in head_data.columns], style={'color': 'white', 'width': '200px'})),
-                                  html.Tbody([
-                                      html.Tr([
-                                          html.Td(head_data.iloc[i][col]) for col in head_data.columns
-                                      ], style={'border': '1px solid white', 'color': 'white', 'width': '200px', 'font-size':'20px'}) for i in range(len(head_data))
-                                  ])
-                              ], style={'margin': '0 auto', 'color': 'white', 'marginBottom': '20px'})
-                          ]),
-                          html.H1("Growth Analysis", style={'textAlign': 'left', 'color': 'white', 'marginBottom': '20px'}),
-                          format_growth_table(),
-                          dcc.Graph(id='stock-price-plot', figure=stock_price, style={'marginBottom': '20px'}),
-                          dcc.Graph(id='daily-returns-plot', figure=daily_returns),
-                          html.H2("Model Plot", style={'textAlign': 'left', 'color': 'white', 'marginBottom': '20px'}),
-                          html.Img(src='https://github.com/Tiaan-Botes/CYO_Project_Group_E/blob/40e8e9fd136e01d8c8ca7bc894a52548c4063030/model_plot.png', style={'width': '100%', 'marginBottom': '20px'})
-                      ])
+children=[
+    html.H1(children='Stock Prediction Model',
+            style={'textAlign': 'center', 'color': 'white', 'textDecoration': 'underline', 'fontWeight': 'bold', 'fontSize': '2.5em', 'marginBottom': '20px'}),
+    html.H3(children='Head of Data',
+            style={'textAlign': 'center', 'color': 'white', 'fontSize': '1.5em', 'marginBottom': '20px'}),
+    html.Div([
+        html.Table([
+            html.Thead(html.Tr([html.Th(col) for col in head_data.columns], style={'color': 'white', 'width': '200px'})),
+            html.Tbody([
+                html.Tr([
+                    html.Td(head_data.iloc[i][col]) for col in head_data.columns
+                ], style={'border': '1px solid white', 'color': 'white', 'width': '200px', 'font-size':'20px'}) for i in range(len(head_data))
+            ])
+        ], style={'margin': '0 auto', 'color': 'white', 'marginBottom': '20px'})
+    ]),
+    html.H1("Growth Analysis", style={'textAlign': 'left', 'color': 'white', 'marginBottom': '20px'}),
+    format_growth_table(),
+    dcc.Graph(id='stock-price-plot', figure=stock_price, style={'marginBottom': '20px'}),
+    dcc.Graph(id='daily-returns-plot', figure=daily_returns),
+    html.H2("Model Plot", style={'textAlign': 'left', 'color': 'white', 'marginBottom': '20px'}),
+    dcc.Graph(
+        id='actual-vs-predicted',
+        figure={
+            'data': [
+                {'x': list(range(len(testY))), 'y': testY, 'type': 'line', 'name': 'Actual'},
+                {'x': list(range(len(gru_predictions))), 'y': gru_predictions.flatten(), 'type': 'line', 'name': 'Predicted'}
+            ],
+            'layout': {
+                'title': 'Actual vs Predicted',
+                'xaxis': {'title': 'Index'},
+                'yaxis': {'title': 'Value'},
+                'hovermode': 'closest'
+            }
+    }
+)
+])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
