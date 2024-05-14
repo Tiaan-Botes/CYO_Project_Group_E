@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import datetime as dt
 from datetime import timedelta, date
-import sklearn.metrics as mt
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 from arch import arch_model
 import os
 import dash
@@ -52,7 +51,59 @@ y_pred_baseline = [y_train_mean] * len(y_train)
 
 model = arch_model(y_train, p=1, q=0, rescale=False).fit()
 
-print(model.forecast(horizon=3, reindex=False)._mean)
+mae = mean_absolute_error(y_train, y_pred_baseline)
+mse = mean_squared_error(y_train, y_pred_baseline)
+rmse = np.sqrt(mse)
+print("Mean Absolute Error (MAE):", mae)
+print("Mean Squared Error (MSE):", mse)
+print("Root Mean Squared Error (RMSE):", rmse)
+
+day = 1
+week = 7
+month = 31
+year = 366
+
+#Predicting the future volatility
+forecast_day = model.forecast(horizon=day)
+next_day = np.sqrt(forecast_day.variance.iloc[-1].values[-1])
+
+forecast_week = model.forecast(horizon=week)
+next_week = np.sqrt(forecast_week.variance.iloc[-1].values[-1])
+
+forecast_month = model.forecast(horizon=month)
+next_month = np.sqrt(forecast_month.variance.iloc[-1].values[-1])
+
+forecast_year = model.forecast(horizon=year)
+next_year = np.sqrt(forecast_year.variance.iloc[-1].values[-1])
+
+print("Next day's volatility forecast:", next_day)
+print("Next week's volatility forecast:", next_week)
+print("Next month's volatility forecast:", next_month)
+print("Next year's volatility forecast:", next_year)
+
+#Predict future returns
+forecast_day = model.forecast(horizon=day)
+next_day_return = forecast_day.mean.iloc[-1].values[-1]
+previous_close = df['Adj Close'].iloc[-1]
+next_day_predicted_price = previous_close * (1 + next_day_return / 100)
+
+forecast_week = model.forecast(horizon=week)
+next_week_return = forecast_week.mean.iloc[-1].values[-1]
+next_week_predicted_price = previous_close * (1 + next_week_return / 100)
+
+forecast_month = model.forecast(horizon=month)
+next_month_return = forecast_month.mean.iloc[-1].values[-1]
+next_month_predicted_price = previous_close * (1 + next_month_return / 100)
+
+forecast_year = model.forecast(horizon=year)
+next_year_return = forecast_year.mean.iloc[-1].values[-1]
+next_year_predicted_price = previous_close * (1 + next_year_return / 100)
+
+# Printing the results
+print("Next day's predicted price:", next_day_predicted_price)
+print("Next week's predicted price:", next_week_predicted_price)
+print("Next month's predicted price:", next_month_predicted_price)
+print("Next year's predicted price:", next_year_predicted_price)
 
 #Plotting data
 plot_data = df.loc[start_date:end_date]
