@@ -13,6 +13,7 @@ data_url = 'https://raw.githubusercontent.com/Tiaan-Botes/CYO_Project_Group_E/52
 df = pd.read_csv(data_url)
 
 df = prepare_data()
+
 head_data = df.head()
 
 data = prepare_plot_data(df)
@@ -41,6 +42,7 @@ app.layout = html.Div(style={'backgroundColor': '#537d90', 'padding': '2rem', 'b
                           ]),
                           dcc.Graph(id='stock-price-plot', figure=stock_price),
                           dcc.Graph(id='daily-returns-plot', figure=daily_returns)
+                          
                       ])
 
 if __name__ == '__main__':

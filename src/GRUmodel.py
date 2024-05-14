@@ -107,7 +107,7 @@ def train_gru_model(dataset):
     testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
     model = build_gru_model((1, look_back))
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+    model.fit(trainX, trainY, epochs=10, batch_size=1, verbose=2)
 
     return model, testX, testY
 
@@ -159,4 +159,5 @@ def sudden_drop():
 plt.plot(testY, label='Actual')
 plt.plot(gru_predictions, label='Predicted')
 plt.legend()
+plt.savefig('model_plot.png')
 #plt.show()
